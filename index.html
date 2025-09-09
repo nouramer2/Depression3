@@ -1,573 +1,387 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>استبيان الاكتئاب الصوتي</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.8;
-            color: #333;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            padding: 0;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استبيان الاكتئاب الصوتي</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.8;
+      color: #333;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
 
-        .container {
-            width: 95%;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 30px;
-            background-color: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            border-radius: 12px;
-        }
+    .container {
+      width: 95%;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 30px;
+      background-color: white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      border-radius: 12px;
+    }
 
-        h1 {
-            color: #2E7D32;
-            text-align: center;
-            font-size: 32px;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-        }
+    h1 {
+      color: #2E7D32;
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
 
-        h2 {
-            color: #1565C0;
-            font-size: 26px;
-            margin-top: 0;
-            margin-bottom: 25px;
-        }
+    h2 {
+      color: #1565C0;
+      font-size: 26px;
+      margin-top: 0;
+      margin-bottom: 25px;
+    }
 
-        .hidden {
-            display: none;
-        }
+    .hidden { display: none; }
 
-        .form-group {
-            margin-bottom: 25px;
-        }
+    .form-group {
+      margin-bottom: 25px;
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-            font-size: 20px;
-            color: #333;
-        }
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+      font-size: 20px;
+      color: #333;
+    }
 
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 14px 24px;
-            margin: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
-        }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      margin: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+    }
 
-        button:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-        }
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    }
 
-        button:disabled {
-            background-color: #bdbdbd;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
+    button:disabled {
+      background-color: #bdbdbd;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
 
-        #record-btn {
-            background-color: #1976D2;
-        }
+    #record-btn { background-color: #1976D2; }
+    #stop-btn { background-color: #D32F2F; }
+    #play-btn { background-color: #FF9800; }
 
-        #stop-btn {
-            background-color: #D32F2F;
-        }
+    .recorder-box {
+      margin: 25px 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      text-align: center;
+      border-left: 5px solid #4CAF50;
+    }
 
-        #play-btn {
-            background-color: #FF9800;
-        }
+    #timer {
+      font-size: 28px;
+      margin: 15px 0;
+      text-align: center;
+      font-weight: bold;
+      color: #1976D2;
+    }
 
-        .recorder-box {
-            margin: 25px 0;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            text-align: center;
-            border-left: 5px solid #4CAF50;
-        }
+    audio {
+      width: 100%;
+      margin-top: 15px;
+      border-radius: 8px;
+    }
 
-        #timer {
-            font-size: 28px;
-            margin: 15px 0;
-            text-align: center;
-            font-weight: bold;
-            color: #1976D2;
-        }
+    [dir="rtl"] { text-align: right; }
 
-        audio {
-            width: 100%;
-            margin-top: 15px;
-            border-radius: 8px;
-        }
+    input, select {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 18px;
+      margin-bottom: 10px;
+      transition: border-color 0.3s;
+    }
 
-        /* تنسيقات للغة العربية */
-        [dir="rtl"] {
-            text-align: right;
-        }
+    input:focus, select:focus {
+      border-color: #4CAF50;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    }
 
-        input, select {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 18px;
-            margin-bottom: 10px;
-            transition: border-color 0.3s;
-        }
+    .phq-question {
+      margin-bottom: 25px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      font-size: 18px;
+      border-right: 4px solid #1976D2;
+    }
 
-        input:focus, select:focus {
-            border-color: #4CAF50;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
-        }
+    .phq-question label {
+      display: block;
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
 
-        .phq-question {
-            margin-bottom: 25px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            font-size: 18px;
-            border-right: 4px solid #1976D2;
-        }
+    .phq-question select {
+      font-size: 18px;
+      padding: 12px;
+    }
 
-        .phq-question label {
-            display: block;
-            margin-bottom: 12px;
-            font-weight: bold;
-        }
+    #thank-you-section {
+      text-align: center;
+      background-color: #E8F5E9;
+      padding: 40px 20px;
+    }
 
-        .phq-question select {
-            font-size: 18px;
-            padding: 12px;
-        }
+    #thank-you-section h2 {
+      color: #2E7D32;
+      font-size: 28px;
+    }
 
-        /* تنسيقات إضافية للوضوح */
-        #consent-section, #demographics-section, #recording-section, #phq8-section, #thank-you-section {
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
+    #thank-you-section p {
+      font-size: 20px;
+      line-height: 1.6;
+    }
 
-        #thank-you-section {
-            text-align: center;
-            background-color: #E8F5E9;
-            padding: 40px 20px;
-        }
+    #question-text {
+      font-size: 20px;
+      line-height: 1.6;
+      padding: 15px;
+      background-color: #f0f7ff;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-right: 4px solid #1976D2;
+    }
 
-        #thank-you-section h2 {
-            color: #2E7D32;
-            font-size: 28px;
-        }
-
-        #thank-you-section p {
-            font-size: 20px;
-            line-height: 1.6;
-        }
-
-        #question-text {
-            font-size: 20px;
-            line-height: 1.6;
-            padding: 15px;
-            background-color: #f0f7ff;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-right: 4px solid #1976D2;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-            margin: 20px 0;
-            background-color: #e3f2fd;
-            border-radius: 8px;
-        }
-
-        .loading-spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #2196F3;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                font-size: 16px;
-                display: block;
-                padding: 10px;
-            }
-            
-            .container {
-                padding: 20px;
-                width: 100%;
-            }
-            
-            h1 {
-                font-size: 26px;
-            }
-            
-            h2 {
-                font-size: 22px;
-            }
-            
-            button {
-                padding: 12px 20px;
-                font-size: 16px;
-                margin: 5px;
-                width: 100%;
-            }
-            
-            .recorder-box {
-                padding: 15px;
-            }
-            
-            .form-group label {
-                font-size: 18px;
-            }
-            
-            input, select {
-                font-size: 16px;
-                padding: 12px;
-            }
-        }
-    </style>
+    @media (max-width: 768px) {
+      body { font-size: 16px; display: block; padding: 10px; }
+      .container { padding: 20px; width: 100%; }
+      h1 { font-size: 26px; }
+      h2 { font-size: 22px; }
+      button { padding: 12px 20px; font-size: 16px; margin: 5px; width: 100%; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>استبيان الصحة النفسية</h1>
-        
-        <div id="consent-section">
-            <div style="background-color: #f0f7ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                <p style="font-size: 20px; line-height: 1.6; margin-bottom: 15px;">هذا البحث يهدف إلى تطوير أدوات للكشف عن الاكتئاب من خلال الصوت. جميع البيانات ستكون مجهولة الهوية.</p>
-                <p style="font-size: 18px; line-height: 1.6;">بموافقتك على المشاركة، فإنك توافق على تسجيل صوتك والإجابة على الأسئلة التالية.</p>
-            </div>
-            <div style="text-align: center;">
-                <button id="consent-btn">أوافق على المشاركة</button>
-            </div>
-        </div>
+  <div class="container">
+    <h1>استبيان الصحة النفسية</h1>
 
-        <div id="demographics-section" class="hidden">
-            <h2>المعلومات الأساسية</h2>
-            <div class="form-group">
-                <label>العمر:</label>
-                <input type="number" id="age" min="18" max="100">
-            </div>
-            <div class="form-group">
-                <label>الجنس:</label>
-                <select id="gender">
-                    <option value="male">ذكر</option>
-                    <option value="female">أنثى</option>
-                    <option value="other">أخرى</option>
-                </select>
-            </div>
-            <div style="text-align: center;">
-                <button id="demographics-next">التالي</button>
-            </div>
-        </div>
-
-        <div id="recording-section" class="hidden">
-            <h2>التسجيل الصوتي</h2>
-            <div id="question-text"></div>
-            <div class="recorder-box">
-                <button id="record-btn">بدء التسجيل</button>
-                <button id="stop-btn" disabled>إيقاف</button>
-                <button id="play-btn" disabled>تشغيل</button>
-                <button id="save-btn" disabled>حفظ</button>
-            </div>
-            <audio id="audio-playback" controls class="hidden"></audio>
-            <div id="timer">00:00</div>
-        </div>
-
-        <div id="phq8-section" class="hidden">
-            <h2>استبيان PHQ-8</h2>
-            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <p style="margin: 0; font-size: 18px;">يرجى الإجابة على الأسئلة التالية بناءً على مشاعرك خلال الأسبوعين الماضيين:</p>
-            </div>
-            <div id="phq-questions"></div>
-            <div style="text-align: center;">
-                <button id="submit-btn">إرسال الإجابات</button>
-            </div>
-        </div>
-
-        <div id="thank-you-section" class="hidden">
-            <h2>شكراً لمشاركتك!</h2>
-            <p>سيتم استخدام بياناتك لتحسين أدوات الكشف عن الاكتئاب.</p>
-        </div>
-
-        <div id="loading" class="loading hidden">
-            <div class="loading-spinner"></div>
-            <p>جاري رفع الملفات وحفظ البيانات...</p>
-        </div>
+    <!-- الموافقة -->
+    <div id="consent-section">
+      <p>هذا البحث يهدف إلى تطوير أدوات للكشف عن الاكتئاب من خلال الصوت. جميع البيانات ستكون مجهولة الهوية.</p>
+      <div style="text-align: center;">
+        <button id="consent-btn">أوافق على المشاركة</button>
+      </div>
     </div>
 
-    <script>
-        // المتغيرات العامة
-        let currentQuestion = 0;
-        let mediaRecorder;
-        let audioChunks = [];
-        let startTime;
-        let timerInterval;
-        let audioBlob;
+    <!-- البيانات -->
+    <div id="demographics-section" class="hidden">
+      <h2>المعلومات الأساسية</h2>
+      <div class="form-group">
+        <label>العمر:</label>
+        <input type="number" id="age" min="18" max="100">
+      </div>
+      <div class="form-group">
+        <label>الجنس:</label>
+        <select id="gender">
+          <option value="male">ذكر</option>
+          <option value="female">أنثى</option>
+          <option value="other">أخرى</option>
+        </select>
+      </div>
+      <div style="text-align: center;">
+        <button id="demographics-next">التالي</button>
+      </div>
+    </div>
 
-        // أسئلة PHQ-8
-        const phq8Questions = [
-            "كم مرة شعرت بانعدام المتعة في ممارسة أنشطتك المعتادة خلال الأسبوعين الماضيين؟",
-            "كم مرة شعرت باليأس أو الاكتئاب خلال الأسبوعين الماضيين؟",
-            "كم مرة واجهت صعوبة في النوم أو النوم أكثر من المعتاد؟",
-            "كم مرة شعرت بالتعب أو قلة الطاقة خلال الأسبوعين الماضيين؟",
-            "كم مرة شعرت بفقدان الشهية أو الإفراط في الأكل خلال الأسبوعين الماضيين؟",
-            "كم مرة شعرت بأنك فاشل أو أنك خذلت نفسك أو عائلتك خلال الأسبوعين الماضيين؟",
-            "كم مرة واجهت صعوبة في التركيز على الأشياء مثل القراءة أو مشاهدة التلفزيون خلال الأسبوعين الماضيين؟",
-            "كم مرة تحركت أو تكلمت ببطء شديد لدرجة أن الآخرين لاحظوا ذلك؟ أو العكس - شعرت بعدم الراحة أو التململ لدرجة أنك تتحرك أكثر من المعتاد؟",
-        ];
+    <!-- التسجيل -->
+    <div id="recording-section" class="hidden">
+      <h2>التسجيل الصوتي</h2>
+      <div id="question-text"></div>
+      <div class="recorder-box">
+        <button id="record-btn">بدء التسجيل</button>
+        <button id="stop-btn" disabled>إيقاف</button>
+        <button id="play-btn" disabled>تشغيل</button>
+        <button id="save-btn" disabled>حفظ</button>
+      </div>
+      <audio id="audio-playback" controls class="hidden"></audio>
+      <div id="timer">00:00</div>
+    </div>
 
-        // عناصر DOM
-        const consentSection = document.getElementById('consent-section');
-        const demographicsSection = document.getElementById('demographics-section');
-        const recordingSection = document.getElementById('recording-section');
-        const phq8Section = document.getElementById('phq8-section');
-        const thankYouSection = document.getElementById('thank-you-section');
-        const questionText = document.getElementById('question-text');
-        const recordBtn = document.getElementById('record-btn');
-        const stopBtn = document.getElementById('stop-btn');
-        const playBtn = document.getElementById('play-btn');
-        const saveBtn = document.getElementById('save-btn');
-        const audioPlayback = document.getElementById('audio-playback');
-        const timer = document.getElementById('timer');
-        const consentBtn = document.getElementById('consent-btn');
-        const demographicsNext = document.getElementById('demographics-next');
-        const phqQuestions = document.getElementById('phq-questions');
-        const submitBtn = document.getElementById('submit-btn');
-        const loadingElement = document.getElementById('loading');
+    <!-- استبيان PHQ-8 -->
+    <div id="phq8-section" class="hidden">
+      <h2>استبيان PHQ-8</h2>
+      <div id="phq-questions"></div>
+      <div style="text-align: center;">
+        <button id="submit-btn">إرسال الإجابات</button>
+      </div>
+    </div>
 
-        // الأحداث
-        consentBtn.addEventListener('click', startConsent);
-        demographicsNext.addEventListener('click', startRecordingSection);
-        submitBtn.addEventListener('click', submitData);
+    <!-- شكراً -->
+    <div id="thank-you-section" class="hidden">
+      <h2>شكراً لمشاركتك!</h2>
+      <p>سيتم استخدام بياناتك لتحسين أدوات الكشف عن الاكتئاب.</p>
+    </div>
+  </div>
 
-        // تهيئة أسئلة PHQ-8
-        function initPHQ8Questions() {
-            phq8Questions.forEach((question, index) => {
-                const div = document.createElement('div');
-                div.className = 'phq-question';
-                
-                const label = document.createElement('label');
-                label.textContent = question;
-                
-                const select = document.createElement('select');
-                select.className = 'phq-answer';
-                select.name = `phq-${index}`;
-                
-                const options = [
-                    {value: 0, text: "أبداً (0 أيام)"},
-                    {value: 1, text: "عدة أيام (1-2 أيام)"},
-                    {value: 2, text: "أكثر من نصف الأيام (3-4 أيام)"},
-                    {value: 3, text: "كل يوم تقريباً (5-7 أيام)"}
-                ];
-                
-                options.forEach(option => {
-                    const optElement = document.createElement('option');
-                    optElement.value = option.value;
-                    optElement.textContent = option.text;
-                    select.appendChild(optElement);
-                });
-                
-                div.appendChild(label);
-                div.appendChild(select);
-                phqQuestions.appendChild(div);
-            });
-        }
+  <script>
+    let mediaRecorder, audioChunks = [], audioBlob, startTime, timerInterval;
 
-        // بدء التسجيل
-        recordBtn.addEventListener('click', async () => {
-            try {
-                // استخدام إعدادات لتقليل حجم التسجيل
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: {
-                        channelCount: 1, // مونو بدلاً من ستريو
-                        sampleRate: 22050, // تقليل معدل العينات
-                        sampleSize: 16,
-                        echoCancellation: true,
-                        noiseSuppression: true
-                    } 
-                });
-                
-                // استخدام تنسيق audio/webm الذي يكون حجمه أصغر من audio/wav
-                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm; codecs=opus' });
-                
-                mediaRecorder.ondataavailable = event => {
-                    audioChunks.push(event.data);
-                };
-                
-                mediaRecorder.onstop = () => {
-                    audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    audioPlayback.src = audioUrl;
-                    audioPlayback.classList.remove('hidden');
-                    playBtn.disabled = false;
-                    saveBtn.disabled = false;
-                };
-                
-                mediaRecorder.start();
-                startTimer();
-                recordBtn.disabled = true;
-                stopBtn.disabled = false;
-                audioChunks = [];
-            } catch (err) {
-                console.error('Error accessing microphone:', err);
-                alert('حدث خطأ في الوصول إلى الميكروفون. يرجى التحقق من الأذونات.');
-            }
+    const phq8Questions = [
+      "كم مرة شعرت بانعدام المتعة في ممارسة أنشطتك المعتادة خلال الأسبوعين الماضيين؟",
+      "كم مرة شعرت باليأس أو الاكتئاب خلال الأسبوعين الماضيين؟",
+      "كم مرة واجهت صعوبة في النوم أو النوم أكثر من المعتاد؟",
+      "كم مرة شعرت بالتعب أو قلة الطاقة خلال الأسبوعين الماضيين؟",
+      "كم مرة شعرت بفقدان الشهية أو الإفراط في الأكل خلال الأسبوعين الماضيين؟",
+      "كم مرة شعرت بأنك فاشل أو أنك خذلت نفسك أو عائلتك خلال الأسبوعين الماضيين؟",
+      "كم مرة واجهت صعوبة في التركيز على الأشياء مثل القراءة أو مشاهدة التلفزيون خلال الأسبوعين الماضيين؟",
+      "كم مرة تحركت أو تكلمت ببطء شديد لدرجة أن الآخرين لاحظوا ذلك؟ أو العكس - شعرت بعدم الراحة أو التململ لدرجة أنك تتحرك أكثر من المعتاد؟",
+    ];
+
+    const consentSection = document.getElementById('consent-section');
+    const demographicsSection = document.getElementById('demographics-section');
+    const recordingSection = document.getElementById('recording-section');
+    const phq8Section = document.getElementById('phq8-section');
+    const thankYouSection = document.getElementById('thank-you-section');
+    const recordBtn = document.getElementById('record-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const playBtn = document.getElementById('play-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const audioPlayback = document.getElementById('audio-playback');
+    const timer = document.getElementById('timer');
+    const consentBtn = document.getElementById('consent-btn');
+    const demographicsNext = document.getElementById('demographics-next');
+    const phqQuestions = document.getElementById('phq-questions');
+    const submitBtn = document.getElementById('submit-btn');
+    const questionText = document.getElementById('question-text');
+
+    consentBtn.addEventListener('click', () => {
+      consentSection.classList.add('hidden');
+      demographicsSection.classList.remove('hidden');
+    });
+
+    demographicsNext.addEventListener('click', () => {
+      demographicsSection.classList.add('hidden');
+      recordingSection.classList.remove('hidden');
+      questionText.textContent = "يرجى التحدث عن شعورك العام خلال الأسبوعين الماضيين:";
+      initPHQ8Questions();
+    });
+
+    submitBtn.addEventListener('click', submitData);
+
+    function initPHQ8Questions() {
+      phq8Questions.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'phq-question';
+        const label = document.createElement('label');
+        label.textContent = q;
+        const select = document.createElement('select');
+        select.className = 'phq-answer';
+        select.name = `phq-${i}`;
+        [
+          {value: 0, text: "أبداً (0 أيام)"},
+          {value: 1, text: "عدة أيام (1-2 أيام)"},
+          {value: 2, text: "أكثر من نصف الأيام (3-4 أيام)"},
+          {value: 3, text: "كل يوم تقريباً (5-7 أيام)"}
+        ].forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt.value; o.textContent = opt.text;
+          select.appendChild(o);
         });
+        div.appendChild(label);
+        div.appendChild(select);
+        phqQuestions.appendChild(div);
+      });
+    }
 
-        // إيقاف التسجيل
-        stopBtn.addEventListener('click', () => {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-                stopTimer();
-                recordBtn.disabled = false;
-                stopBtn.disabled = true;
-                
-                // إيقاف جميع مسارات الصوت
-                mediaRecorder.stream.getTracks().forEach(track => track.stop());
-            }
-        });
+    recordBtn.addEventListener('click', async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        audioPlayback.src = URL.createObjectURL(audioBlob);
+        audioPlayback.classList.remove('hidden');
+        playBtn.disabled = false; saveBtn.disabled = false;
+      };
+      mediaRecorder.start();
+      startTimer();
+      recordBtn.disabled = true; stopBtn.disabled = false;
+    });
 
-        // تشغيل التسجيل
-        playBtn.addEventListener('click', () => {
-            audioPlayback.play();
-        });
+    stopBtn.addEventListener('click', () => {
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+        stopTimer();
+        recordBtn.disabled = false; stopBtn.disabled = true;
+      }
+    });
 
-        // حفظ التسجيل
-        saveBtn.addEventListener('click', () => {
-            saveRecording();
-        });
+    playBtn.addEventListener('click', () => audioPlayback.play());
 
-        // وظائف التحكم
-        function startConsent() {
-            consentSection.classList.add('hidden');
-            demographicsSection.classList.remove('hidden');
-        }
+    saveBtn.addEventListener('click', () => {
+      recordingSection.classList.add('hidden');
+      phq8Section.classList.remove('hidden');
+    });
 
-        function startRecordingSection() {
-            demographicsSection.classList.add('hidden');
-            recordingSection.classList.remove('hidden');
-            questionText.textContent = "يرجى التحدث عن شعورك العام خلال الأسبوعين الماضيين:";
-            initPHQ8Questions();
-        }
+    function startTimer() {
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const m = String(Math.floor(elapsed / 60)).padStart(2,'0');
+        const s = String(elapsed % 60).padStart(2,'0');
+        timer.textContent = `${m}:${s}`;
+      }, 1000);
+    }
+    function stopTimer() { clearInterval(timerInterval); }
 
-        function startTimer() {
-            startTime = Date.now();
-            timerInterval = setInterval(updateTimer, 1000);
-        }
+    function submitData() {
+      const phqAnswers = [];
+      document.querySelectorAll('.phq-answer').forEach(s => phqAnswers.push(+s.value));
+      const totalScore = phqAnswers.reduce((a,b) => a+b, 0);
 
-        function stopTimer() {
-            clearInterval(timerInterval);
-        }
+      const formData = new FormData();
+      formData.append("age", document.getElementById('age').value);
+      formData.append("gender", document.getElementById('gender').value);
+      formData.append("totalScore", totalScore);
+      formData.append("phqAnswers", JSON.stringify(phqAnswers));
+      formData.append("timestamp", new Date().toISOString());
+      if (audioBlob) formData.append("audioFile", audioBlob, "recording.webm");
 
-        function updateTimer() {
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
-            const seconds = (elapsed % 60).toString().padStart(2, '0');
-            timer.textContent = `${minutes}:${seconds}`;
-        }
+      fetch(WEB_APP_URL, { method: "POST", body: formData })
+        .then(() => console.log("Data sent"))
+        .catch(err => console.error("Error:", err));
 
-        function saveRecording() {
-            recordingSection.classList.add('hidden');
-            phq8Section.classList.remove('hidden');
-        }
+      phq8Section.classList.add('hidden');
+      thankYouSection.classList.remove('hidden');
+    }
 
-        function submitData() {
-            // جمع بيانات PHQ-8
-            const phqAnswers = [];
-            document.querySelectorAll('.phq-answer').forEach(select => {
-                phqAnswers.push(parseInt(select.value));
-            });
-            
-            const totalScore = phqAnswers.reduce((sum, score) => sum + score, 0);
-            
-            // إظهار مؤشر التحميل
-            loadingElement.classList.remove('hidden');
-            
-            // إرسال البيانات
-            sendToServer({
-                age: document.getElementById('age').value,
-                gender: document.getElementById('gender').value,
-                audioBlob: audioBlob,
-                phqAnswers: phqAnswers,
-                totalScore: totalScore,
-                timestamp: new Date().toISOString()
-            });
-        }
-
-        // تكامل مع Google Apps Script - استخدام FormData لإرسال Blob مباشرة
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyvnA7bIk0sZ_VcDixC9FQCa9LdogLVashDWOA6gMRxA5L9J3unBzZG0w4_66UAdyG_/exec";
-
-        function sendToServer(data) {
-            // إنشاء FormData لإرسال الملفات
-            const formData = new FormData();
-            
-            // إضافة البيانات النصية
-            formData.append('age', data.age);
-            formData.append('gender', data.gender);
-            formData.append('phqAnswers', JSON.stringify(data.phqAnswers));
-            formData.append('totalScore', data.totalScore);
-            formData.append('timestamp', data.timestamp);
-            
-            // إضافة ملف الصوت مباشرة كـ Blob
-            const audioFileName = `audio_recording_${new Date().getTime()}.webm`;
-            formData.append('audioFile', data.audioBlob, audioFileName);
-            
-            // إرسال البيانات باستخدام FormData
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                body: formData,
-                mode: 'no-cors'
-            })
-            .then(() => {
-                console.log('Data sent successfully');
-                loadingElement.classList.add('hidden');
-                phq8Section.classList.add('hidden');
-                thankYouSection.classList.remove('hidden');
-            })
-            .catch(err => {
-                console.error('Error sending data:', err);
-                loadingElement.classList.add('hidden');
-                alert('حدث خطأ في إرسال البيانات. يرجى المحاولة مرة أخرى.');
-            });
-        }
-    </script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyvnA7bIk0sZ_VcDixC9FQCa9LdogLVashDWOA6gMRxA5L9J3unBzZG0w4_66UAdyG_/exec";
+  </script>
 </body>
 </html>
-
-
