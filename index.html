@@ -203,11 +203,12 @@
       <h2>المعلومات الأساسية</h2>
       <div class="form-group">
         <label>العمر:</label>
-        <input type="number" id="age" min="18" max="100">
+        <input type="number" id="age" min="18" max="100" required>
       </div>
       <div class="form-group">
         <label>الجنس:</label>
-        <select id="gender">
+        <select id="gender" required>
+          <option value="">-- اختر الجنس --</option>
           <option value="male">ذكر</option>
           <option value="female">أنثى</option>
           <option value="other">أخرى</option>
@@ -279,12 +280,28 @@
     const submitBtn = document.getElementById('submit-btn');
     const questionText = document.getElementById('question-text');
 
+    // رابط Google Apps Script الخاص بك
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxc8ldwPDWhxhLBbl22nf329w_v76RzpdsVZKklj6EQUsRvPj-oA5BtFKud0I7CwGI0/exec";
+
     consentBtn.addEventListener('click', () => {
       consentSection.classList.add('hidden');
       demographicsSection.classList.remove('hidden');
     });
 
     demographicsNext.addEventListener('click', () => {
+      const age = document.getElementById('age').value;
+      const gender = document.getElementById('gender').value;
+      
+      if (!age || age < 18 || age > 100) {
+        alert("يرجى إدخال عمر صحيح بين 18 و 100");
+        return;
+      }
+      
+      if (!gender) {
+        alert("يرجى اختيار الجنس");
+        return;
+      }
+      
       demographicsSection.classList.add('hidden');
       recordingSection.classList.remove('hidden');
       questionText.textContent = "يرجى التحدث عن شعورك العام خلال الأسبوعين الماضيين:";
@@ -294,6 +311,7 @@
     submitBtn.addEventListener('click', submitData);
 
     function initPHQ8Questions() {
+      phqQuestions.innerHTML = '';
       phq8Questions.forEach((q, i) => {
         const div = document.createElement('div');
         div.className = 'phq-question';
@@ -302,6 +320,16 @@
         const select = document.createElement('select');
         select.className = 'phq-answer';
         select.name = `phq-${i}`;
+        select.required = true;
+        
+        // إضافة خيار افتراضي
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = "-- اختر الإجابة --";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        select.appendChild(defaultOption);
+        
         [
           {value: 0, text: "أبداً (0 أيام)"},
           {value: 1, text: "عدة أيام (1-2 أيام)"},
@@ -309,9 +337,11 @@
           {value: 3, text: "كل يوم تقريباً (5-7 أيام)"}
         ].forEach(opt => {
           const o = document.createElement('option');
-          o.value = opt.value; o.textContent = opt.text;
+          o.value = opt.value;
+          o.textContent = opt.text;
           select.appendChild(o);
         });
+        
         div.appendChild(label);
         div.appendChild(select);
         phqQuestions.appendChild(div);
@@ -319,26 +349,43 @@
     }
 
     recordBtn.addEventListener('click', async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-      mediaRecorder.onstop = () => {
-        audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        audioPlayback.src = URL.createObjectURL(audioBlob);
-        audioPlayback.classList.remove('hidden');
-        playBtn.disabled = false; saveBtn.disabled = false;
-      };
-      mediaRecorder.start();
-      startTimer();
-      recordBtn.disabled = true; stopBtn.disabled = false;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        
+        mediaRecorder.onstop = () => {
+          audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          audioPlayback.src = audioUrl;
+          audioPlayback.classList.remove('hidden');
+          playBtn.disabled = false;
+          saveBtn.disabled = false;
+        };
+        
+        mediaRecorder.start();
+        startTimer();
+        recordBtn.disabled = true;
+        stopBtn.disabled = false;
+      } catch (err) {
+        console.error('Error accessing microphone:', err);
+        alert('حدث خطأ في الوصول إلى الميكروفون. يرجى التحقق من الأذونات.');
+      }
     });
 
     stopBtn.addEventListener('click', () => {
-      if (mediaRecorder) {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
         stopTimer();
-        recordBtn.disabled = false; stopBtn.disabled = true;
+        recordBtn.disabled = false;
+        stopBtn.disabled = true;
+        
+        // إيقاف جميع مسارات الصوت
+        if (mediaRecorder.stream) {
+          mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        }
       }
     });
 
@@ -353,36 +400,106 @@
       startTime = Date.now();
       timerInterval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        const m = String(Math.floor(elapsed / 60)).padStart(2,'0');
-        const s = String(elapsed % 60).padStart(2,'0');
+        const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const s = String(elapsed % 60).padStart(2, '0');
         timer.textContent = `${m}:${s}`;
       }, 1000);
     }
-    function stopTimer() { clearInterval(timerInterval); }
-
-    function submitData() {
-      const phqAnswers = [];
-      document.querySelectorAll('.phq-answer').forEach(s => phqAnswers.push(+s.value));
-      const totalScore = phqAnswers.reduce((a,b) => a+b, 0);
-
-      const formData = new FormData();
-      formData.append("age", document.getElementById('age').value);
-      formData.append("gender", document.getElementById('gender').value);
-      formData.append("totalScore", totalScore);
-      formData.append("phqAnswers", JSON.stringify(phqAnswers));
-      formData.append("timestamp", new Date().toISOString());
-      if (audioBlob) formData.append("audioFile", audioBlob, "recording.webm");
-
-      fetch(WEB_APP_URL, { method: "POST", body: formData })
-        .then(() => console.log("Data sent"))
-        .catch(err => console.error("Error:", err));
-
-      phq8Section.classList.add('hidden');
-      thankYouSection.classList.remove('hidden');
+    
+    function stopTimer() {
+      clearInterval(timerInterval);
     }
 
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxYwt9wdQMghg_WBQteND5dIGFUbz3bhMlfmaQ-wXGk52BBoe1_OV6MLLKSMAy3nvtr/exec";
+    function submitData() {
+      // التحقق من إجابة جميع الأسئلة
+      const allAnswered = Array.from(document.querySelectorAll('.phq-answer'))
+        .every(select => select.value !== "");
+        
+      if (!allAnswered) {
+        alert("يرجى الإجابة على جميع الأسئلة قبل المتابعة");
+        return;
+      }
+      
+      const phqAnswers = [];
+      document.querySelectorAll('.phq-answer').forEach(s => phqAnswers.push(parseInt(s.value)));
+      const totalScore = phqAnswers.reduce((a, b) => a + b, 0);
+
+      // إرسال البيانات إلى Google Apps Script
+      sendToServer({
+        age: document.getElementById('age').value,
+        gender: document.getElementById('gender').value,
+        audioBlob: audioBlob,
+        phqAnswers: phqAnswers,
+        totalScore: totalScore,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    function sendToServer(data) {
+      // تحويل Blob إلى base64
+      if (data.audioBlob) {
+        const reader = new FileReader();
+        reader.readAsDataURL(data.audioBlob);
+        reader.onloadend = function() {
+          const base64Audio = reader.result.split(',')[1];
+          
+          const payload = {
+            age: data.age,
+            gender: data.gender,
+            audioData: base64Audio,
+            phqAnswers: data.phqAnswers,
+            totalScore: data.totalScore,
+            timestamp: data.timestamp
+          };
+          
+          fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+          })
+          .then(() => {
+            console.log('Data sent successfully');
+            phq8Section.classList.add('hidden');
+            thankYouSection.classList.remove('hidden');
+          })
+          .catch(err => {
+            console.error('Error sending data:', err);
+            alert('حدث خطأ في إرسال البيانات. يرجى المحاولة مرة أخرى.');
+          });
+        };
+      } else {
+        // إذا لم يكن هناك تسجيل صوتي
+        const payload = {
+          age: data.age,
+          gender: data.gender,
+          audioData: null,
+          phqAnswers: data.phqAnswers,
+          totalScore: data.totalScore,
+          timestamp: data.timestamp
+        };
+        
+        fetch(WEB_APP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        })
+        .then(() => {
+          console.log('Data sent successfully');
+          phq8Section.classList.add('hidden');
+          thankYouSection.classList.remove('hidden');
+        })
+        .catch(err => {
+          console.error('Error sending data:', err);
+          alert('حدث خطأ في إرسال البيانات. يرجى المحاولة مرة أخرى.');
+        });
+      }
+    }
   </script>
 </body>
 </html>
-
