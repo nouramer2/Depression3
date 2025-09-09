@@ -125,6 +125,14 @@
             font-weight: bold;
             text-align: center;
         }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffeeba;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -136,7 +144,7 @@
             <div class="consent">
                 <p>نحن ندعوك للمشاركة في استبيان حول الصحة النفسية. سيطلب منك هذا الاستبيان الإجابة على بعض الأسئلة حول مشاعرك خلال الأسبوعين الماضيين، وكذلك تسجيل رسالة صوتية قصيرة.</p>
                 <p>جميع البيانات التي تقدمها ستبقى سرية وسيتم استخدامها لأغراض البحث العلمي فقط. سيتم تخزين البيانات في بيئة آمنة ولن يتم الكشف عن هويتك الشخصية.</p>
-                <p>مشاركتك طوعية تمامًا، ول你有 الحق في سحب موافقتك في أي وقت دون أي عواقب.</p>
+                <p>مشاركتك طوعية تمامًا، ولديك الحق في سحب موافقتك في أي وقت دون أي عواقب.</p>
                 <p>بالنقر على "أوافق"، فإنك تقر بأنك قد قرأت وفهمت المعلومات المذكورة أعلاه وتوافق على المشاركة في هذا الاستبيان.</p>
             </div>
             <label>
@@ -165,6 +173,14 @@
         <div id="recordingSection" class="section hidden">
             <h2>التسجيل الصوتي</h2>
             <p>يرجى التحدث عن مشاعرك خلال الأسبوعين الماضيين. سيتمكن الباحثون من الاستماع إلى هذا التسجيل لفهم تجربتك بشكل أفضل.</p>
+            <div class="note">
+                <strong>ملاحظة:</strong> إذا لم يظهر زر التسجيل، يرجى التأكد من:
+                <ul>
+                    <li>استخدام متصفح حديث مثل Chrome أو Firefox</li>
+                    <li>السماح للموقع باستخدام الميكروفون</li>
+                    <li>الاتصال بالإنترنت</li>
+                </ul>
+            </div>
             <div class="record-container">
                 <button id="recordButton">بدء التسجيل</button>
                 <div id="timer">00:00</div>
@@ -335,6 +351,12 @@
         
         // تهيئة التسجيل الصوتي
         function initRecording() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                messageDiv.textContent = 'المتصفح الخاص بك لا يدعم التسجيل الصوتي. يرجى استخدام متصفح حديث مثل Chrome أو Firefox.';
+                messageDiv.className = 'error';
+                return;
+            }
+            
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
                     mediaRecorder = new MediaRecorder(stream);
@@ -387,7 +409,9 @@
         });
         
         function stopRecording() {
-            mediaRecorder.stop();
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
             recording = false;
             recordButton.textContent = 'بدء التسجيل';
             recordButton.classList.remove('recording');
@@ -443,11 +467,15 @@
                     formData.append('audio', audioBlob, 'recording.webm');
                 }
                 
-                // إرسال البيانات إلى Google Apps Script (استبدل YOUR_SCRIPT_URL برابط النص البرمجي الخاص بك)
+                // إرسال البيانات إلى Google Apps Script
                 const response = await fetch('https://script.google.com/macros/s/AKfycbxQaHbu56Ok4PUrc9wtdK3gDCC_PVAsY5yObrlb_LvG44_C2MNX1hkLgD0cppJ8kXSz/exec', {
                     method: 'POST',
                     body: formData
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 
                 const result = await response.json();
                 
