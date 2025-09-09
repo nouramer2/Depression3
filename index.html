@@ -197,6 +197,30 @@
             border-right: 4px solid #1976D2;
         }
 
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+        }
+
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #2196F3;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             body {
                 font-size: 16px;
@@ -300,6 +324,11 @@
             <h2>شكراً لمشاركتك!</h2>
             <p>سيتم استخدام بياناتك لتحسين أدوات الكشف عن الاكتئاب.</p>
         </div>
+
+        <div id="loading" class="loading hidden">
+            <div class="loading-spinner"></div>
+            <p>جاري رفع الملفات وحفظ البيانات...</p>
+        </div>
     </div>
 
     <script>
@@ -340,6 +369,7 @@
         const demographicsNext = document.getElementById('demographics-next');
         const phqQuestions = document.getElementById('phq-questions');
         const submitBtn = document.getElementById('submit-btn');
+        const loadingElement = document.getElementById('loading');
 
         // الأحداث
         consentBtn.addEventListener('click', startConsent);
@@ -382,15 +412,26 @@
         // بدء التسجيل
         recordBtn.addEventListener('click', async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
+                // استخدام إعدادات لتقليل حجم التسجيل
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        channelCount: 1, // مونو بدلاً من ستريو
+                        sampleRate: 22050, // تقليل معدل العينات
+                        sampleSize: 16,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    } 
+                });
+                
+                // استخدام تنسيق audio/webm الذي يكون حجمه أصغر من audio/wav
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm; codecs=opus' });
                 
                 mediaRecorder.ondataavailable = event => {
                     audioChunks.push(event.data);
                 };
                 
                 mediaRecorder.onstop = () => {
-                    audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                     const audioUrl = URL.createObjectURL(audioBlob);
                     audioPlayback.src = audioUrl;
                     audioPlayback.classList.remove('hidden');
@@ -475,6 +516,9 @@
             
             const totalScore = phqAnswers.reduce((sum, score) => sum + score, 0);
             
+            // إظهار مؤشر التحميل
+            loadingElement.classList.remove('hidden');
+            
             // إرسال البيانات
             sendToServer({
                 age: document.getElementById('age').value,
@@ -484,40 +528,44 @@
                 totalScore: totalScore,
                 timestamp: new Date().toISOString()
             });
-            
-            phq8Section.classList.add('hidden');
-            thankYouSection.classList.remove('hidden');
         }
 
-        // تكامل مع Google Apps Script
+        // تكامل مع Google Apps Script - استخدام FormData لإرسال Blob مباشرة
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwG5HemV0PKTnmgseOJrnP0QFQ6w76gxgBwmuBEsK_R4Eh4bi1RURCpHzd7f046K7lE/exec";
 
         function sendToServer(data) {
-            // تحويل Blob إلى base64
-            const reader = new FileReader();
-            reader.readAsDataURL(data.audioBlob);
-            reader.onloadend = function() {
-                const base64Audio = reader.result.split(',')[1];
-                
-                const payload = {
-                    ...data,
-                    audioBlob: base64Audio
-                };
-                
-                fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                })
-                .then(() => console.log('Data sent successfully'))
-                .catch(err => console.error('Error sending data:', err));
-            };
+            // إنشاء FormData لإرسال الملفات
+            const formData = new FormData();
+            
+            // إضافة البيانات النصية
+            formData.append('age', data.age);
+            formData.append('gender', data.gender);
+            formData.append('phqAnswers', JSON.stringify(data.phqAnswers));
+            formData.append('totalScore', data.totalScore);
+            formData.append('timestamp', data.timestamp);
+            
+            // إضافة ملف الصوت مباشرة كـ Blob
+            const audioFileName = `audio_recording_${new Date().getTime()}.webm`;
+            formData.append('audioFile', data.audioBlob, audioFileName);
+            
+            // إرسال البيانات باستخدام FormData
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            })
+            .then(() => {
+                console.log('Data sent successfully');
+                loadingElement.classList.add('hidden');
+                phq8Section.classList.add('hidden');
+                thankYouSection.classList.remove('hidden');
+            })
+            .catch(err => {
+                console.error('Error sending data:', err);
+                loadingElement.classList.add('hidden');
+                alert('حدث خطأ في إرسال البيانات. يرجى المحاولة مرة أخرى.');
+            });
         }
     </script>
 </body>
 </html>
-
-
