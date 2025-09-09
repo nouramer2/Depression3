@@ -1,373 +1,566 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>استبيان الاكتئاب (PHQ-8)</title>
-  <style>
-    body {
-      font-family: "Tahoma", sans-serif;
-      background: #f4f6f9;
-      text-align: center;
-      padding: 20px;
-      direction: rtl;
-    }
-    h1 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-    form {
-      max-width: 700px;
-      margin: auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      font-size: 18px;
-    }
-    label {
-      display: block;
-      margin: 15px 0 5px;
-      font-weight: bold;
-      text-align: right;
-    }
-    input, select {
-      padding: 10px;
-      width: 95%;
-      font-size: 16px;
-      margin-bottom: 15px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-    .question {
-      margin: 20px 0;
-      text-align: right;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 15px;
-    }
-    .question p {
-      font-size: 18px;
-      margin-bottom: 10px;
-      font-weight: bold;
-      color: #444;
-    }
-    .question label {
-      font-weight: normal;
-      margin-left: 15px;
-      display: inline-block;
-      padding: 8px 15px;
-      background: #f8f9fa;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .question label:hover {
-      background: #e9ecef;
-    }
-    .question input[type="radio"] {
-      width: auto;
-      margin-left: 5px;
-    }
-    button {
-      padding: 12px 25px;
-      margin: 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    #recordBtn { 
-      background: #007bff; 
-      color: white; 
-    }
-    #recordBtn:disabled {
-      background: #6c757d;
-      cursor: not-allowed;
-    }
-    #stopBtn { 
-      background: #dc3545; 
-      color: white; 
-    }
-    #stopBtn:disabled {
-      background: #6c757d;
-      cursor: not-allowed;
-    }
-    #submitBtn { 
-      background: #28a745; 
-      color: white; 
-      width: 100%;
-      padding: 15px;
-      font-size: 20px;
-      margin-top: 20px;
-    }
-    #submitBtn:disabled {
-      background: #6c757d;
-      cursor: not-allowed;
-    }
-    #recordStatus {
-      font-size: 16px;
-      margin: 15px 0;
-      color: #666;
-    }
-    #progressBar {
-      width: 100%;
-      height: 20px;
-      background: #f0f0f0;
-      border-radius: 10px;
-      margin: 15px 0;
-      overflow: hidden;
-      display: none;
-    }
-    #progressFill {
-      height: 100%;
-      background: linear-gradient(90deg, #007bff, #28a745);
-      width: 0%;
-      transition: width 0.3s;
-    }
-    .file-info {
-      background: #e7f3ff;
-      padding: 10px;
-      border-radius: 5px;
-      margin: 10px 0;
-      border-right: 4px solid #007bff;
-    }
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #007bff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استبيان الاكتئاب PHQ-8</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: #4a6fa5;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        header h1 {
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+            display: none;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a6fa5;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .btn {
+            background: #4a6fa5;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: #3a5a80;
+        }
+        
+        .btn-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .consent-text {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.8;
+        }
+        
+        .phq-question {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .phq-question h3 {
+            margin-bottom: 15px;
+            color: #4a6fa5;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .option input {
+            width: auto;
+            margin-left: 10px;
+        }
+        
+        .recorder {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .recorder-btn {
+            background: #e74c3c;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            cursor: pointer;
+            border: none;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .recorder-btn.recording {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a6fa5;
+        }
+        
+        .summary {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .summary h3 {
+            margin-bottom: 15px;
+            color: #4a6fa5;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: #4a6fa5;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .note {
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-right: 4px solid #ffc107;
+        }
+    </style>
 </head>
 <body>
-
-  <h1>📝 استبيان الاكتئاب (PHQ-8)</h1>
-
-  <form id="surveyForm">
-    <label>العمر:</label>
-    <input type="number" id="age" name="age" required min="18" max="100">
-
-    <label>النوع:</label>
-    <select id="gender" name="gender" required>
-      <option value="">اختر</option>
-      <option value="male">ذكر</option>
-      <option value="female">أنثى</option>
-      <option value="other">آخر</option>
-    </select>
-
-    <!-- أسئلة PHQ-8 (بدون السؤال التاسع) -->
-    <div id="questions"></div>
-
-    <!-- تسجيل الصوت -->
-    <h2>🎤 التسجيل الصوتي (اختياري)</h2>
-    <button type="button" id="recordBtn">ابدأ التسجيل</button>
-    <button type="button" id="stopBtn" disabled>إيقاف التسجيل</button>
-    <p id="recordStatus">لم يبدأ التسجيل بعد</p>
-    
-    <!-- شريط التقدم -->
-    <div id="progressBar">
-      <div id="progressFill"></div>
+    <div class="container">
+        <header>
+            <h1>استبيان الصحة النفسية</h1>
+            <p>نحن نهتم بمشاعرك خلال الأسبوعين الماضيين</p>
+        </header>
+        
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <!-- قسم الموافقة -->
+        <div class="section active" id="consent-section">
+            <h2>موافقة المشاركة</h2>
+            <div class="consent-text">
+                <p>نشكرك على اهتمامك بالمشاركة في هذا الاستبيان الذي يهدف إلى فهم المشاعر والتجارب النفسية خلال الأسبوعين الماضيين.</p>
+                <p>بياناتك ستستخدم لأغراض البحث العلمي فقط وستحافظ على سرية معلوماتك الشخصية. سيتم تخزين التسجيلات الصوتية والإجابات بشكل آمن.</p>
+                <p>مشاركتك طوعية تمامًا ولك الحق في سحب موافقتك في أي وقت دون أي عواقب.</p>
+                <p>بالنقر على "أوافق" أدناه، فإنك توافق على المشاركة في هذا البحث وتؤكد أنك قد قرأت وفهمت المعلومات المقدمة.</p>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="consent-checkbox">
+                    أوافق على المشاركة في الاستبيان
+                </label>
+            </div>
+            <div class="btn-container">
+                <button class="btn" id="consent-btn" disabled>المتابعة</button>
+            </div>
+        </div>
+        
+        <!-- قسم المعلومات الشخصية -->
+        <div class="section" id="info-section">
+            <h2>المعلومات الشخصية</h2>
+            <div class="form-group">
+                <label for="age">العمر:</label>
+                <input type="number" id="age" min="18" max="100" placeholder="أدخل عمرك">
+            </div>
+            <div class="form-group">
+                <label for="gender">الجنس:</label>
+                <select id="gender">
+                    <option value="">اختر الجنس</option>
+                    <option value="male">ذكر</option>
+                    <option value="female">أنثى</option>
+                    <option value="other">أخرى</option>
+                </select>
+            </div>
+            <div class="btn-container">
+                <button class="btn" id="info-btn">المتابعة</button>
+            </div>
+        </div>
+        
+        <!-- قسم التسجيل الصوتي -->
+        <div class="section" id="record-section">
+            <h2>تسجيل المشاعر</h2>
+            <p>يرجى التحدث عن مشاعرك خلال الأسبوعين الماضيين. اضغط على زر التسجيل وابدأ بالتحدث لمدة تصل إلى 5 دقائق.</p>
+            
+            <div class="note">
+                <p>ملاحظة: يمكنك التسجيل لمدة تصل إلى 5 دقائق. سيتم حفظ التسجيل تلقائيًا عند إيقافه.</p>
+            </div>
+            
+            <div class="recorder">
+                <button class="recorder-btn" id="record-btn">●</button>
+                <div class="timer" id="timer">00:00</div>
+                <p id="record-status">لم يبدأ التسجيل بعد</p>
+                <p id="time-limit">الحد الأقصى للتسجيل: 5 دقائق</p>
+            </div>
+            
+            <div class="btn-container">
+                <button class="btn" id="record-next-btn" disabled>المتابعة</button>
+            </div>
+        </div>
+        
+        <!-- قسم استبيان PHQ-8 -->
+        <div class="section" id="phq-section">
+            <h2>استبيان PHQ-8</h2>
+            <p>يرجى الإجابة على الأسئلة التالية حول مشاعرك خلال الأسبوعين الماضيين:</p>
+            
+            <div id="phq-questions">
+                <!-- سيتم إضافة الأسئلة ديناميكيًا -->
+            </div>
+            
+            <div class="btn-container">
+                <button class="btn" id="phq-btn">إرسال الاستبيان</button>
+            </div>
+        </div>
+        
+        <!-- قسم النتائج -->
+        <div class="section" id="results-section">
+            <h2>شكراً لمشاركتك!</h2>
+            <div class="summary">
+                <h3>ملخص الاستبيان</h3>
+                <p>العمر: <span id="summary-age"></span></p>
+                <p>الجنس: <span id="summary-gender"></span></p>
+                <p>نتيجة PHQ-8: <span id="summary-score"></span></p>
+                <p>سيتم إرسال البيانات إلى الباحثين.</p>
+            </div>
+            <div class="btn-container">
+                <button class="btn" id="restart-btn">بدء استبيان جديد</button>
+            </div>
+        </div>
     </div>
-    <div id="fileInfo" class="file-info"></div>
 
-    <button type="submit" id="submitBtn">إرسال الاستبيان</button>
-  </form>
+    <script>
+        // بيانات الأسئلة لاستبيان PHQ-8
+        const phqQuestions = [
+            "قلة الاهتمام أو المتعة في doing things",
+            "شعور بالإحباط أو الاكتئاب أو اليأس",
+            "صعوبة في النوم أو البقاء نائماً، أو النوم أكثر من اللازم",
+            "الشعور بالتعب أو قلة الطاقة",
+            "قلة الشهية أو الإفراط في الأكل",
+            "شعور بعدم الرضا عن النفس أو أنك فاشل أو أنك خذلت نفسك أو عائلتك",
+            "صعوبة في التركيز على الأشياء، مثل قراءة الجريدة أو مشاهدة التلفزيون",
+            "تحرك أو تكلم ببطء شديد بحيث يمكن للآخرين ملاحظته؟ أو على العكس من ذلك، تشعر بعدم الاستقرار أو التململ بحيث تتحرك أكثر من المعتاد"
+        ];
 
-  <script>
-    // أسئلة PHQ-8 فقط (بدون السؤال التاسع عن الموت)
-    const questionsText = [
-      "قلة الاهتمام أو المتعة بالقيام بالأشياء",
-      "الشعور بالإحباط أو الاكتئاب أو اليأس",
-      "صعوبة النوم أو النوم لفترات طويلة",
-      "الشعور بالتعب أو فقدان الطاقة",
-      "ضعف الشهية أو الإفراط في الأكل",
-      "الشعور السيء تجاه نفسك أو أنك فاشل",
-      "صعوبة التركيز في الأنشطة اليومية",
-      "الحركة أو الكلام ببطء شديد أو بسرعة مفرطة"
-      // تم حذف السؤال التاسع عن الموت وإيذاء النفس
-    ];
+        const options = [
+            "ليس على الإطلاق",
+            "عدة أيام",
+            "أكثر من نصف الأيام",
+            "كل يوم تقريباً"
+        ];
 
-    const questionsDiv = document.getElementById("questions");
-    questionsText.forEach((q, i) => {
-      const div = document.createElement("div");
-      div.className = "question";
-      div.innerHTML = `
-        <p>${i+1}. ${q}</p>
-        <label><input type="radio" name="q${i}" value="0" required> أبداً (0 يوم)</label>
-        <label><input type="radio" name="q${i}" value="1"> عدة أيام (1-7 أيام)</label>
-        <label><input type="radio" name="q${i}" value="2"> أكثر من نصف الأيام</label>
-        <label><input type="radio" name="q${i}" value="3"> تقريباً كل يوم</label>
-      `;
-      questionsDiv.appendChild(div);
-    });
+        // عناصر DOM
+        const progressBar = document.getElementById('progress');
+        const sections = document.querySelectorAll('.section');
+        let currentSection = 0;
 
-    // تسجيل الصوت
-    let mediaRecorder;
-    let audioChunks = [];
-    let audioBlob = null;
-    let recordingStartTime;
+        // عناصر التسجيل الصوتي
+        const recordBtn = document.getElementById('record-btn');
+        const timer = document.getElementById('timer');
+        const recordStatus = document.getElementById('record-status');
+        const recordNextBtn = document.getElementById('record-next-btn');
+        let mediaRecorder;
+        let audioChunks = [];
+        let recording = false;
+        let seconds = 0;
+        let timerInterval;
+        const MAX_RECORDING_TIME = 300; // 5 دقائق بالثواني
 
-    const recordBtn = document.getElementById("recordBtn");
-    const stopBtn = document.getElementById("stopBtn");
-    const recordStatus = document.getElementById("recordStatus");
-    const progressBar = document.getElementById("progressBar");
-    const progressFill = document.getElementById("progressFill");
-    const fileInfo = document.getElementById("fileInfo");
-    const submitBtn = document.getElementById("submitBtn");
-
-    recordBtn.addEventListener("click", async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          audio: {
-            channelCount: 1,
-            echoCancellation: true,
-            noiseSuppression: true
-          } 
-        });
-        
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks = [];
-        recordingStartTime = Date.now();
-
-        mediaRecorder.ondataavailable = e => {
-          audioChunks.push(e.data);
-        };
-
-        mediaRecorder.onstop = () => {
-          audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-          const duration = Math.round((Date.now() - recordingStartTime) / 1000);
-          const sizeMB = (audioBlob.size / (1024 * 1024)).toFixed(2);
-          
-          recordStatus.textContent = `✅ تم تسجيل ${duration} ثانية (${sizeMB} MB)`;
-          fileInfo.textContent = `حجم الملف: ${sizeMB} MB - المدة: ${duration} ثانية`;
-          
-          stream.getTracks().forEach(track => track.stop());
-        };
-
-        mediaRecorder.start();
-        recordStatus.textContent = "🔴 جاري التسجيل...";
-        recordBtn.disabled = true;
-        stopBtn.disabled = false;
-
-      } catch (error) {
-        console.error("خطأ في الوصول إلى الميكروفون:", error);
-        recordStatus.textContent = "❌ خطأ في الوصول إلى الميكروفون";
-      }
-    });
-
-    stopBtn.addEventListener("click", () => {
-      if (mediaRecorder && mediaRecorder.state === "recording") {
-        mediaRecorder.stop();
-        recordBtn.disabled = false;
-        stopBtn.disabled = true;
-        recordStatus.textContent = "⏹️ تم إيقاف التسجيل، جاهز للإرسال";
-      }
-    });
-
-    // إرسال البيانات
-    document.getElementById("surveyForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      try {
-        submitBtn.disabled = true;
-        submitBtn.textContent = "جاري الإرسال...";
-        progressBar.style.display = 'block';
-
-        const age = document.getElementById("age").value;
-        const gender = document.getElementById("gender").value;
-
-        const phqAnswers = [];
-        for (let i = 0; i < 8; i++) { // 8 أسئلة فقط
-          const answer = document.querySelector(`input[name="q${i}"]:checked`).value;
-          phqAnswers.push(parseInt(answer));
+        // تحديث شريط التقدم
+        function updateProgress() {
+            const progress = ((currentSection + 1) / sections.length) * 100;
+            progressBar.style.width = `${progress}%`;
         }
 
-        const totalScore = phqAnswers.reduce((a, b) => a + b, 0);
-
-        const formData = new FormData();
-        formData.append("age", age);
-        formData.append("gender", gender);
-        formData.append("totalScore", totalScore);
-        formData.append("phqAnswers", JSON.stringify(phqAnswers));
-        formData.append("timestamp", new Date().toISOString());
-        formData.append("phqVersion", "PHQ-8"); // إضافة إصدار الاستبيان
-
-        if (audioBlob) {
-          formData.append("audioFile", audioBlob, `recording_${Date.now()}.webm`);
-        }
-
-        const xhr = new XMLHttpRequest();
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzjXdSNqX-2qNweLuDb2yE93X5HFTXvBH4jLmKCrMFoWjtBVx5SpNp4HJIpx97A3MzY/exec';
-        
-        xhr.open('POST', scriptURL);
-        
-        xhr.upload.addEventListener('progress', function(e) {
-          if (e.lengthComputable) {
-            const percentComplete = (e.loaded / e.total) * 100;
-            progressFill.style.width = percentComplete + '%';
-            fileInfo.textContent = `جاري الرفع: ${percentComplete.toFixed(1)}%`;
-          }
-        });
-
-        xhr.onload = function() {
-          progressBar.style.display = 'none';
-          
-          try {
-            const response = JSON.parse(xhr.responseText);
-            if (response.status === "success") {
-              alert("✅ تم إرسال الاستبيان بنجاح!");
-              document.getElementById("surveyForm").reset();
-              audioBlob = null;
-              fileInfo.textContent = "";
-            } else {
-              alert("❌ " + (response.message || "حدث خطأ غير متوقع"));
+        // الانتقال إلى القسم التالي
+        function nextSection() {
+            sections[currentSection].classList.remove('active');
+            currentSection++;
+            
+            if (currentSection < sections.length) {
+                sections[currentSection].classList.add('active');
+                updateProgress();
+                
+                // إذا كان القسم التالي هو قسم الأسئلة، قم ببنائها
+                if (currentSection === 3) {
+                    buildPHQQuestions();
+                }
+                
+                // إذا كان القسم التالي هو قسم النتائج، قم بعرضها
+                if (currentSection === 4) {
+                    showSummary();
+                }
             }
-          } catch (parseError) {
-            alert("❌ خطأ في فهم response: " + xhr.responseText);
-          }
-          
-          submitBtn.disabled = false;
-          submitBtn.textContent = "إرسال الاستبيان";
-        };
+        }
 
-        xhr.onerror = function() {
-          progressBar.style.display = 'none';
-          alert("❌ فشل الاتصال بالخادم. تأكد من:\n1. اتصال الإنترنت\n2. نشر السكريبت كـ Web App\n3. الصلاحيات: أي شخص");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "إرسال الاستبيان";
-        };
+        // بناء أسئلة PHQ-8
+        function buildPHQQuestions() {
+            const container = document.getElementById('phq-questions');
+            container.innerHTML = '';
+            
+            phqQuestions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'phq-question';
+                
+                questionDiv.innerHTML = `
+                    <h3>${index + 1}. ${question}</h3>
+                    <div class="options">
+                        ${options.map((option, optIndex) => `
+                            <div class="option">
+                                <input type="radio" id="q${index}-opt${optIndex}" name="q${index}" value="${optIndex}" required>
+                                <label for="q${index}-opt${optIndex}">${option} (${optIndex})</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(questionDiv);
+            });
+        }
 
-        xhr.ontimeout = function() {
-          progressBar.style.display = 'none';
-          alert("⏰ انتهت مهلة الاتصال. حاول مرة أخرى.");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "إرسال الاستبيان";
-        };
+        // عرض ملخص النتائج
+        function showSummary() {
+            document.getElementById('summary-age').textContent = document.getElementById('age').value;
+            document.getElementById('summary-gender').textContent = document.getElementById('gender').options[document.getElementById('gender').selectedIndex].text;
+            
+            // حساب نتيجة PHQ-8
+            let score = 0;
+            for (let i = 0; i < phqQuestions.length; i++) {
+                const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selectedOption) {
+                    score += parseInt(selectedOption.value);
+                }
+            }
+            
+            document.getElementById('summary-score').textContent = score;
+            
+            // إرسال البيانات إلى الخادم
+            sendDataToServer(score);
+        }
 
-        xhr.timeout = 300000; // 5 دقائق
-        xhr.send(formData);
+        // إرسال البيانات إلى الخادم
+        function sendDataToServer(score) {
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+            
+            // هذا مثال لكيفية إرسال البيانات
+            // في الواقع، ستحتاج إلى نشر تطبيق Google Apps Script واستخدام URL الخاص به
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwYLP5J-1IjDW1VpCN1A2lVj_o-A9p8aIl6f62PSAwX94EDtomRVPzryZiFLVFiXp4u/exec';
+            
+            const formData = new FormData();
+            formData.append('age', age);
+            formData.append('gender', gender);
+            formData.append('score', score);
+            formData.append('timestamp', new Date().toISOString());
+            
+            // إذا كان لدينا تسجيل صوتي، أضفه
+            if (audioChunks.length > 0) {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                formData.append('audio', audioBlob, 'recording.webm');
+            }
+            
+            fetch(scriptURL, { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+                console.log('تم إرسال البيانات بنجاح!', data);
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                alert('حدث خطأ في إرسال البيانات. يرجى المحاولة مرة أخرى.');
+            });
+        }
 
-      } catch (error) {
-        console.error("خطأ في الإرسال:", error);
-        alert("❌ حدث خطأ: " + error.message);
-        submitBtn.disabled = false;
-        submitBtn.textContent = "إرسال الاستبيان";
-        progressBar.style.display = 'none';
-      }
-    });
+        // بدء/إيقاف التسجيل
+        recordBtn.addEventListener('click', async () => {
+            if (!recording) {
+                // بدء التسجيل
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+                    
+                    mediaRecorder.start(1000); // جمع البيانات كل ثانية
+                    recording = true;
+                    recordBtn.classList.add('recording');
+                    recordStatus.textContent = "جاري التسجيل...";
+                    recordStatus.style.color = "#e74c3c";
+                    
+                    // بدء المؤقت
+                    seconds = 0;
+                    timerInterval = setInterval(() => {
+                        seconds++;
+                        const mins = Math.floor(seconds / 60);
+                        const secs = seconds % 60;
+                        timer.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                        
+                        // إيقاف التسجيل تلقائياً بعد 5 دقائق
+                        if (seconds >= MAX_RECORDING_TIME) {
+                            stopRecording();
+                            alert("تم الوصول إلى الحد الأقصى للتسجيل (5 دقائق)");
+                        }
+                    }, 1000);
+                } catch (error) {
+                    console.error("Error accessing microphone:", error);
+                    alert("تعذر الوصول إلى الميكروفون. يرجى التحقق من الأذونات.");
+                }
+            } else {
+                stopRecording();
+            }
+        });
 
-    // التحقق من دعم التسجيل الصوتي
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      recordStatus.textContent = "❌ المتصفح لا يدعم التسجيل الصوتي";
-      recordBtn.disabled = true;
-    }
-  </script>
+        // إيقاف التسجيل
+        function stopRecording() {
+            if (mediaRecorder && recording) {
+                mediaRecorder.stop();
+                recording = false;
+                recordBtn.classList.remove('recording');
+                recordStatus.textContent = "تم التسجيل بنجاح";
+                recordStatus.style.color = "#27ae60";
+                clearInterval(timerInterval);
+                recordNextBtn.disabled = false;
+                
+                // إيقاف جميع tracks في stream
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        // أحداث الأزرار
+        document.getElementById('consent-checkbox').addEventListener('change', function() {
+            document.getElementById('consent-btn').disabled = !this.checked;
+        });
+
+        document.getElementById('consent-btn').addEventListener('click', nextSection);
+        document.getElementById('info-btn').addEventListener('click', function() {
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+            
+            if (age && gender) {
+                nextSection();
+            } else {
+                alert("يرجى ملء جميع الحقول");
+            }
+        });
+        
+        document.getElementById('record-next-btn').addEventListener('click', nextSection);
+        document.getElementById('phq-btn').addEventListener('click', function() {
+            // التحقق من أن جميع الأسئلة قد تمت الإجابة عليها
+            let allAnswered = true;
+            for (let i = 0; i < phqQuestions.length; i++) {
+                if (!document.querySelector(`input[name="q${i}"]:checked`)) {
+                    allAnswered = false;
+                    break;
+                }
+            }
+            
+            if (allAnswered) {
+                nextSection();
+            } else {
+                alert("يرجى الإجابة على جميع الأسئلة");
+            }
+        });
+
+        document.getElementById('restart-btn').addEventListener('click', function() {
+            location.reload();
+        });
+
+        // تحديث شريط التقدم في البداية
+        updateProgress();
+    </script>
 </body>
 </html>
