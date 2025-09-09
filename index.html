@@ -9,6 +9,7 @@
       background: #f4f6f9;
       text-align: center;
       padding: 20px;
+      direction: rtl;
     }
     h1 {
       color: #333;
@@ -27,36 +28,122 @@
       display: block;
       margin: 15px 0 5px;
       font-weight: bold;
+      text-align: right;
     }
     input, select {
       padding: 10px;
       width: 95%;
       font-size: 16px;
       margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
     }
     .question {
       margin: 20px 0;
       text-align: right;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
     }
     .question p {
       font-size: 18px;
       margin-bottom: 10px;
+      font-weight: bold;
+      color: #444;
     }
     .question label {
       font-weight: normal;
-      margin-left: 10px;
+      margin-left: 15px;
+      display: inline-block;
+      padding: 8px 15px;
+      background: #f8f9fa;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .question label:hover {
+      background: #e9ecef;
+    }
+    .question input[type="radio"] {
+      width: auto;
+      margin-left: 5px;
     }
     button {
-      padding: 12px 20px;
+      padding: 12px 25px;
       margin: 10px;
       border: none;
       border-radius: 8px;
       font-size: 18px;
       cursor: pointer;
+      transition: all 0.3s;
     }
-    #recordBtn { background: #007bff; color: white; }
-    #stopBtn { background: #dc3545; color: white; }
-    #submitBtn { background: #28a745; color: white; width: 100%; }
+    #recordBtn { 
+      background: #007bff; 
+      color: white; 
+    }
+    #recordBtn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    #stopBtn { 
+      background: #dc3545; 
+      color: white; 
+    }
+    #stopBtn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    #submitBtn { 
+      background: #28a745; 
+      color: white; 
+      width: 100%;
+      padding: 15px;
+      font-size: 20px;
+      margin-top: 20px;
+    }
+    #submitBtn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    #recordStatus {
+      font-size: 16px;
+      margin: 15px 0;
+      color: #666;
+    }
+    #progressBar {
+      width: 100%;
+      height: 20px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      margin: 15px 0;
+      overflow: hidden;
+      display: none;
+    }
+    #progressFill {
+      height: 100%;
+      background: linear-gradient(90deg, #007bff, #28a745);
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .file-info {
+      background: #e7f3ff;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+      border-right: 4px solid #007bff;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -83,6 +170,12 @@
     <button type="button" id="recordBtn">ابدأ التسجيل</button>
     <button type="button" id="stopBtn" disabled>إيقاف التسجيل</button>
     <p id="recordStatus">لم يبدأ التسجيل بعد</p>
+    
+    <!-- شريط التقدم -->
+    <div id="progressBar">
+      <div id="progressFill"></div>
+    </div>
+    <div id="fileInfo" class="file-info"></div>
 
     <button type="submit" id="submitBtn">إرسال الاستبيان</button>
   </form>
@@ -91,7 +184,7 @@
     const questionsText = [
       "قلة الاهتمام أو المتعة بالقيام بالأشياء",
       "الشعور بالإحباط أو الاكتئاب أو اليأس",
-      "صعوبة النوم أو النوم لفترات طويلة",
+      "صعوبة النوس أو النوم لفترات طويلة",
       "الشعور بالتعب أو فقدان الطاقة",
       "ضعف الشهية أو الإفراط في الأكل",
       "الشعور السيء تجاه نفسك أو أنك فاشل",
@@ -118,70 +211,161 @@
     let mediaRecorder;
     let audioChunks = [];
     let audioBlob = null;
+    let recordingStartTime;
 
     const recordBtn = document.getElementById("recordBtn");
     const stopBtn = document.getElementById("stopBtn");
     const recordStatus = document.getElementById("recordStatus");
+    const progressBar = document.getElementById("progressBar");
+    const progressFill = document.getElementById("progressFill");
+    const fileInfo = document.getElementById("fileInfo");
+    const submitBtn = document.getElementById("submitBtn");
+
+    // إعدادات الصوت المحسنة
+    const audioSettings = {
+      audioBitsPerSecond: 64000, // 64 kbps - جودة مناسبة للكلام
+      mimeType: 'audio/webm;codecs=opus'
+    };
 
     recordBtn.addEventListener("click", async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          audio: {
+            channelCount: 1, // مونو لتقليل الحجم
+            echoCancellation: true,
+            noiseSuppression: true
+          } 
+        });
+        
+        mediaRecorder = new MediaRecorder(stream, audioSettings);
+        audioChunks = [];
+        recordingStartTime = Date.now();
 
-      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-      mediaRecorder.onstop = () => {
-        audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-        recordStatus.textContent = "✅ تم تسجيل الصوت بنجاح";
-      };
+        mediaRecorder.ondataavailable = e => {
+          audioChunks.push(e.data);
+        };
 
-      mediaRecorder.start();
-      recordStatus.textContent = "🔴 جاري التسجيل...";
-      recordBtn.disabled = true;
-      stopBtn.disabled = false;
+        mediaRecorder.onstop = () => {
+          audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+          const duration = Math.round((Date.now() - recordingStartTime) / 1000);
+          const sizeMB = (audioBlob.size / (1024 * 1024)).toFixed(2);
+          
+          recordStatus.textContent = `✅ تم تسجيل ${duration} ثانية (${sizeMB} MB)`;
+          fileInfo.textContent = `حجم الملف: ${sizeMB} MB - المدة: ${duration} ثانية`;
+          
+          // تحرير الميكروفون
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        recordStatus.textContent = "🔴 جاري التسجيل...";
+        recordStatus.innerHTML += ' <span class="loading"></span>';
+        recordBtn.disabled = true;
+        stopBtn.disabled = false;
+
+      } catch (error) {
+        console.error("خطأ في الوصول إلى الميكروفون:", error);
+        recordStatus.textContent = "❌ خطأ في الوصول إلى الميكروفون";
+      }
     });
 
     stopBtn.addEventListener("click", () => {
-      mediaRecorder.stop();
-      recordBtn.disabled = false;
-      stopBtn.disabled = true;
-      recordStatus.textContent = "⏹️ تم إيقاف التسجيل، جاهز للإرسال";
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        recordBtn.disabled = false;
+        stopBtn.disabled = true;
+        recordStatus.textContent = "⏹️ تم إيقاف التسجيل، جاهز للإرسال";
+      }
     });
 
     // إرسال البيانات
     document.getElementById("surveyForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const age = document.getElementById("age").value;
-      const gender = document.getElementById("gender").value;
+      try {
+        // تعطيل الزر أثناء الإرسال
+        submitBtn.disabled = true;
+        submitBtn.textContent = "جاري الإرسال...";
 
-      const phqAnswers = [];
-      for (let i = 0; i < 9; i++) {
-        const answer = document.querySelector(`input[name="q${i}"]:checked`).value;
-        phqAnswers.push(parseInt(answer));
+        const age = document.getElementById("age").value;
+        const gender = document.getElementById("gender").value;
+
+        const phqAnswers = [];
+        for (let i = 0; i < 9; i++) {
+          const answer = document.querySelector(`input[name="q${i}"]:checked`).value;
+          phqAnswers.push(parseInt(answer));
+        }
+
+        const totalScore = phqAnswers.reduce((a, b) => a + b, 0);
+
+        const formData = new FormData();
+        formData.append("age", age);
+        formData.append("gender", gender);
+        formData.append("totalScore", totalScore);
+        formData.append("phqAnswers", JSON.stringify(phqAnswers));
+        formData.append("timestamp", new Date().toISOString());
+
+        if (audioBlob) {
+          formData.append("audioFile", audioBlob, `recording_${Date.now()}.webm`);
+        }
+
+        // إظهار شريط التقدم
+        progressBar.style.display = 'block';
+        fileInfo.textContent = "جاري رفع الملف...";
+
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const percentComplete = (e.loaded / e.total) * 100;
+            progressFill.style.width = percentComplete + '%';
+            fileInfo.textContent = `جاري الرفع: ${percentComplete.toFixed(1)}% (${(e.loaded / (1024 * 1024)).toFixed(2)} MB / ${(e.total / (1024 * 1024)).toFixed(2)} MB)`;
+          }
+        });
+
+        xhr.addEventListener('load', () => {
+          try {
+            const result = JSON.parse(xhr.responseText);
+            if (result.status === "success") {
+              alert("✅ تم إرسال الاستبيان بنجاح!");
+              // إعادة تعيين النموذج
+              document.getElementById("surveyForm").reset();
+              audioBlob = null;
+              fileInfo.textContent = "";
+              progressBar.style.display = 'none';
+            } else {
+              throw new Error(result.message);
+            }
+          } catch (error) {
+            alert("❌ خطأ في الإرسال: " + error.message);
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "إرسال الاستبيان";
+          }
+        });
+
+        xhr.addEventListener('error', () => {
+          alert("❌ فشل الاتصال بالخادم");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "إرسال الاستبيان";
+        });
+
+        xhr.open('POST', 'https://script.google.com/macros/s/AKfycby3l6fZxOqa7KmJnqKIZN2nqmeIaTcWzarcwVD3OYI4WcQvWelf2LCwLLQO-wqT8I9f/exec');
+        xhr.send(formData);
+
+      } catch (error) {
+        console.error("خطأ في الإرسال:", error);
+        alert("❌ حدث خطأ: " + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "إرسال الاستبيان";
       }
-
-      const totalScore = phqAnswers.reduce((a, b) => a + b, 0);
-
-      const formData = new FormData();
-      formData.append("age", age);
-      formData.append("gender", gender);
-      formData.append("totalScore", totalScore);
-      formData.append("phqAnswers", JSON.stringify(phqAnswers));
-      formData.append("timestamp", new Date().toISOString());
-
-      if (audioBlob) {
-        formData.append("audioFile", audioBlob, "recording.webm");
-      }
-
-      const response = await fetch("https://script.google.com/macros/s/AKfycby3l6fZxOqa7KmJnqKIZN2nqmeIaTcWzarcwVD3OYI4WcQvWelf2LCwLLQO-wqT8I9f/exec", {
-        method: "POST",
-        body: formData
-      });
-
-      const result = await response.json();
-      alert(result.message);
     });
+
+    // التحقق من دعم التسجيل الصوتي
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      recordStatus.textContent = "❌ المتصفح لا يدعم التسجيل الصوتي";
+      recordBtn.disabled = true;
+    }
   </script>
 </body>
 </html>
-
